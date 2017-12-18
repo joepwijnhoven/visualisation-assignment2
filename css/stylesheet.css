@@ -1,40 +1,40 @@
+.water {
+  fill: #1E90FF;
+}
+
 .land {
-  fill: #999;
-  stroke-opacity: 1;
-}
-.graticule {
-  fill: none;
-  stroke: black;
-  stroke-width:.5;
-  opacity:.2;
+  fill: #A98B6F;
+  stroke: #FFF;
+  stroke-width: 0.7px;
 }
 
-.labels {
-    font: 8px sans-serif;
-    fill: black;
-    opacity: .5;
-
-    display:none;
+.land:hover {
+  fill:#33CC33;
+  stroke-width: 1px;
 }
 
-.noclicks { pointer-events:none; }
+.focused {
+  fill: #33CC33;
+}
 
-.point {  opacity:.6; }
+select {
+  position: absolute;
+  top: 20px;
+  left: 580px;
+  border: solid #ccc 1px;
+  padding: 3px;
+  box-shadow: inset 1px 1px 2px #ddd8dc;
+}
 
-.arcs {
-  opacity:.1;
-  stroke: gray;
-  stroke-width: 3;
+.countryTooltip {
+  position: absolute;
+  display: none;
+  pointer-events: none;
+  background: #fff;
+  padding: 5px;
+  text-align: left;
+  border: solid #ccc 1px;
+  color: #666;
+  font-size: 14px;
+  font-family: sans-serif;
 }
-.flyers {
-  stroke-width:1;
-  opacity: .6;
-  stroke: darkred; 
-}
-.arc, .flyer {
-  stroke-linejoin: round;
-  fill:none;
-}
-.arc { }
-.flyer { }
-.flyer:hover { }
