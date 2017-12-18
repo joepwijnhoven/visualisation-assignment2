@@ -100,8 +100,15 @@ queue()
     })
 	.on("click", function(d) {
 		if (d3.event.defaultPrevented) return;
-		d3.select(this).style("fill", "#000")
-		//alert(countryById[d.id]);
+		if(d.selected) {
+			d.selected = false;
+			d3.select(this).style("fill", "#A98B6F")
+		} else {
+			d.selected = true;
+			d3.select(this).style("fill", "#FF0000")
+		}
+		
+		//console.log(data.avgTempCountry[countryById[d.id]]);
 	});
 
     //Country focus on option select
