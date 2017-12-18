@@ -19,7 +19,11 @@ this.createWorld = function() {
 
   var svg = d3.select("body").append("svg")
   .attr("width", width)
-  .attr("height", height);
+  .attr("height", height)
+  .style("position", "fixed")
+  .style("left", "50%")
+  .style("top", "50%")
+  .style("transform", "translate(-50%, -50%)");
 
   //Adding water
 
