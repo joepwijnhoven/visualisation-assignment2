@@ -1,13 +1,13 @@
 this.createWorld = function() {
   var width = 600,
-  height = 500,
+  height = 600,
   sens = 0.25,
   focused;
-
+  
   //Setting projection
 
   var projection = d3.geo.orthographic()
-  .scale(245)
+  .scale(300)
   .rotate([0, 0])
   .translate([width / 2, height / 2])
   .clipAngle(90);
@@ -52,7 +52,7 @@ queue()
 	var data = new Data();
 	world = data.world;
 	countryData = data.countryData;
-
+	var selectedCountries = [];
 	
     var countryById = {},
     countries = topojson.feature(world, world.objects.countries).features;
@@ -104,16 +104,33 @@ queue()
     })
 	.on("click", function(d) {
 		if (d3.event.defaultPrevented) return;
-		if(d.selected) {
-			d.selected = false;
+		var name = countryById[d.id];
+		var index = selectedCountries.indexOf(name);
+		
+		if(index > -1) {
+			selectedCountries.splice(index, 1);
 			d3.select(this).style("fill", "#A98B6F")
 		} else {
-			d.selected = true;
+			selectedCountries.push(name);
 			d3.select(this).style("fill", "#FF0000")
 		}
-		
-		//console.log(data.avgTempCountry[countryById[d.id]]);
+		drawData(selectedCountries);
 	});
+	
+	function drawData(selectedCountries) {
+		if(selectedCountries.length > 0) {
+			d3.select("#graph").transition().duration(1000).style("right", "10px");
+			d3.select("select").transition().duration(1000).style("left", "350px");
+			svg.transition().duration(1000).style("left", "350px");
+			for(var i = 0; i < selectedCountries.length; i++) {
+				console.log("get data from " + selectedCountries[i]);
+			}
+		} else{
+			d3.select("#graph").transition().duration(1000).style("right", "-610px");
+			d3.select("select").transition().duration(1000).style("left", window.innerWidth / 2 + "px");
+			svg.transition().duration(1000).style("left", window.innerWidth / 2 + "px");
+		}
+	}
 
     //Country focus on option select
 
@@ -121,7 +138,7 @@ queue()
       var rotate = projection.rotate(),
       focusedCountry = country(countries, this),
       p = d3.geo.centroid(focusedCountry);
-
+	
       svg.selectAll(".focused").classed("focused", focused = false);
 
     //Globe rotating

@@ -2,6 +2,17 @@ body {
 	background-color: black;
 }
 
+#graph {
+	position:fixed;
+	overflow: hidden;
+	right: -610px;
+	width: 600px;
+	opacity: 1;
+	background-color: white;
+	height:100vh;
+	padding: 5px;
+}
+
 .water {
   fill: #1E90FF;
 }
@@ -23,8 +34,9 @@ body {
 
 select {
   position: absolute;
-  top: 20px;
-  left: 580px;
+  left: 50%;
+  top: 50px;
+  transform: translate(-50%, -50%);
   border: solid #ccc 1px;
   padding: 3px;
   box-shadow: inset 1px 1px 2px #ddd8dc;
