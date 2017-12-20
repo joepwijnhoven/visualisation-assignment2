@@ -1,4 +1,5 @@
 this.createWorld = function() {
+
   var width = 600,
   height = 600,
   sens = 0.25,
@@ -119,14 +120,14 @@ queue()
 	
 	function drawData(selectedCountries) {
 		if(selectedCountries.length > 0) {
-			d3.select("#graph").transition().duration(1000).style("right", "10px");
-			d3.select("select").transition().duration(1000).style("left", "350px");
-			svg.transition().duration(1000).style("left", "350px");
+			d3.select("#graph").transition().duration(1000).style("right", "0px");
+			d3.select("select").transition().duration(1000).style("left", "450px");
+			svg.transition().duration(1000).style("left", "450px");
 			for(var i = 0; i < selectedCountries.length; i++) {
 				console.log("get data from " + selectedCountries[i]);
 			}
 		} else{
-			d3.select("#graph").transition().duration(1000).style("right", "-610px");
+			d3.select("#graph").transition().duration(1000).style("right", "-51%");
 			d3.select("select").transition().duration(1000).style("left", window.innerWidth / 2 + "px");
 			svg.transition().duration(1000).style("left", window.innerWidth / 2 + "px");
 		}
@@ -164,4 +165,43 @@ queue()
     };
 
   };
+}
+
+
+
+function fillTable(data){
+  document.getElementById("info_bottom").appendChild(buildTable(data));
+}
+
+function buildTable(data) {
+    var table = document.getElementById("DataTable");
+    table.className="gridtable";
+    var thead = document.createElement("thead");
+    var tbody = document.createElement("tbody");
+    var headRow = document.createElement("tr");
+    ["id","Height","Country"].forEach(function(el) {
+      var th=document.createElement("th");
+      th.appendChild(document.createTextNode(el));
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    table.appendChild(thead); 
+    data.forEach(function(el) {
+      var tr = document.createElement("tr");
+      for (var o in el) {  
+        var td = document.createElement("td");
+        td.appendChild(document.createTextNode(el[o]))
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);  
+    });
+    table.appendChild(tbody);             
+    return table;
+}
+
+
+this.createTable = function() {
+	$(document).ready(function(){
+	$('#DataTable').DataTable();
+	});
 }

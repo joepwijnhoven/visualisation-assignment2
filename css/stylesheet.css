@@ -5,13 +5,23 @@ body {
 #graph {
 	position:fixed;
 	overflow: hidden;
-	right: -610px;
-	width: 600px;
+	right: -51%;
+	width: 50%;
 	opacity: 1;
 	background-color: white;
 	height:100vh;
 	padding: 5px;
 }
+
+#info_top {
+	margin:3%;
+	height:30%;
+}
+#info_bottom{
+	margin:3%;
+	height:70%;
+}
+
 
 .water {
   fill: #1E90FF;
