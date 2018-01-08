@@ -123,8 +123,10 @@ queue()
 			d3.select("#graph").transition().duration(1000).style("right", "0px");
 			d3.select("select").transition().duration(1000).style("left", "450px");
 			svg.transition().duration(1000).style("left", "450px");
+			createchart(selectedCountries, data.avgTempCountry);
 			for(var i = 0; i < selectedCountries.length; i++) {
 				console.log("get data from " + selectedCountries[i]);
+				fillTable(data.avgTempCountry[selectedCountries[i]]);
 			}
 		} else{
 			d3.select("#graph").transition().duration(1000).style("right", "-51%");
@@ -204,4 +206,51 @@ this.createTable = function() {
 	$(document).ready(function(){
 	$('#DataTable').DataTable();
 	});
+}
+
+function createchart(selectedcountries, data){
+var ctx = document.getElementById("myChart").getContext('2d');
+var colors = ['rgba(166,206,227,1)','rgba(31,120,180,1)','rgba(178,223,138,1)','rgba(51,160,44,1)','rgba(251,154,153,1)','rgba(227,26,28,1)','rgba(253,191,111,1)','rgba(255,127,0,1)','rgba(202,178,214,1)','rgba(106,61,154,1)'];
+var datasets = [];
+var enddata = [];
+
+for (j=0; j < selectedcountries.length; j++){
+	 var temp = data[selectedcountries[j]];
+		for (k=0; k < temp.length; k++){
+			if (temp[k].year > 2000 && temp[k].year < 2011){
+				if (!(enddata[j])) {
+					enddata[j]=[];
+				}
+				enddata[j].push(temp[k].AvgTemp); 
+		}
+	}
+}
+
+for (i=0; i < selectedcountries.length; i++){
+	data = {
+		label: selectedcountries[i],
+		data: enddata[i],
+		backgroundColor: colors[i],
+		borderColor: colors[i],
+		fill:false
+	}
+	console.log(data);
+	datasets[i] = data;
+}
+var myChart = new Chart(ctx, {
+	type: 'line',
+	data: {
+		labels: ["2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010"],
+		datasets: datasets
+	},
+	options: {
+		scales: {
+			yAxes: [{
+				ticks: {
+					beginAtZero:true
+				}
+			}]
+		}
+	}
+});
 }
