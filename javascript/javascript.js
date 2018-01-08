@@ -111,6 +111,7 @@ queue()
 		if(index > -1) {
 			selectedCountries.splice(index, 1);
 			d3.select(this).style("fill", "#A98B6F")
+			d3.select(this).blur();
 		} else {
 			selectedCountries.push(name);
 			d3.select(this).style("fill", "#FF0000")
@@ -123,8 +124,11 @@ queue()
 			d3.select("#graph").transition().duration(1000).style("right", "0px");
 			d3.select("select").transition().duration(1000).style("left", "450px");
 			svg.transition().duration(1000).style("left", "450px");
+			clearTable();
 			for(var i = 0; i < selectedCountries.length; i++) {
-				console.log("get data from " + selectedCountries[i]);
+				if(data.avgTempCountry[selectedCountries[i]]) {
+					fillTableWithData(data.avgTempCountry[selectedCountries[i]], selectedCountries[i]);
+				}
 			}
 		} else{
 			d3.select("#graph").transition().duration(1000).style("right", "-51%");
@@ -170,38 +174,49 @@ queue()
 
 
 function fillTable(data){
-  document.getElementById("info_bottom").appendChild(buildTable(data));
+  document.getElementById("info_bottom").appendChild(buildTable());
 }
 
-function buildTable(data) {
+function clearTable() {
+	 var table = $('#DataTable').DataTable();
+	 table.clear();
+	 table.draw();
+}
+
+function fillTableWithData(data, country) {
+	 var table = $('#DataTable').DataTable();
+	 data.forEach(function(el) {
+      
+	  if(el.year == 2012) {
+		table.row.add([country, el.year, el.AvgTemp]);
+		//$("#DataTable > tbody").append(tr);  
+	  }
+	  table.draw();
+
+    });
+   
+}
+
+function buildTable() {
     var table = document.getElementById("DataTable");
     table.className="gridtable";
     var thead = document.createElement("thead");
     var tbody = document.createElement("tbody");
     var headRow = document.createElement("tr");
-    ["id","Height","Country"].forEach(function(el) {
+    ["Country","Year","Average Temperature"].forEach(function(el) {
       var th=document.createElement("th");
       th.appendChild(document.createTextNode(el));
       headRow.appendChild(th);
     });
     thead.appendChild(headRow);
     table.appendChild(thead); 
-    data.forEach(function(el) {
-      var tr = document.createElement("tr");
-      for (var o in el) {  
-        var td = document.createElement("td");
-        td.appendChild(document.createTextNode(el[o]))
-        tr.appendChild(td);
-      }
-      tbody.appendChild(tr);  
-    });
-    table.appendChild(tbody);             
+	table.appendChild(tbody);  
     return table;
 }
 
 
 this.createTable = function() {
 	$(document).ready(function(){
-	$('#DataTable').DataTable();
+	$('#DataTable').DataTable({ paging: false, bLengthChange: false});
 	});
 }
