@@ -55,7 +55,8 @@ queue()
 	countryData = data.countryData;
 	var selectedCountries = [];
 	
-    var countryById = {},
+    var countryById = {};
+	var chart;
     countries = topojson.feature(world, world.objects.countries).features;
 
     //Adding countries to select
@@ -111,7 +112,6 @@ queue()
 		if(index > -1) {
 			selectedCountries.splice(index, 1);
 			d3.select(this).style("fill", "#A98B6F")
-			d3.select(this).blur();
 		} else {
 			selectedCountries.push(name);
 			d3.select(this).style("fill", "#FF0000")
@@ -120,12 +120,15 @@ queue()
 	});
 	
 	function drawData(selectedCountries) {
+		if(!chart) {
+			chart = createChart();
+		}
 		if(selectedCountries.length > 0) {
 			d3.select("#graph").transition().duration(1000).style("right", "0px");
 			d3.select("select").transition().duration(1000).style("left", "450px");
 			svg.transition().duration(1000).style("left", "450px");
 			clearTable();
-			createchart(selectedCountries, data.avgTempCountry);
+			fillChart(selectedCountries, data.avgTempCountry, chart);
 			for(var i = 0; i < selectedCountries.length; i++) {
 				if(data.avgTempCountry[selectedCountries[i]]) {
 					fillTableWithData(data.avgTempCountry[selectedCountries[i]], selectedCountries[i]);
@@ -222,8 +225,29 @@ this.createTable = function() {
 	});
 }
 
-function createchart(selectedcountries, data){
-var ctx = document.getElementById("myChart").getContext('2d');
+function createChart(){
+	var ctx = document.getElementById("myChart").getContext('2d');
+	var myChart = new Chart(ctx, {
+	type: 'line',
+	data: {
+		labels: ["2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010"],
+		datasets: []
+	},
+	options: {
+		scales: {
+			yAxes: [{
+				ticks: {
+					beginAtZero:true
+				}
+			}]
+		}
+	}
+	});
+	return myChart;
+}
+
+function fillChart(selectedcountries, data, myChart){
+//document.getElementById("myChart").remove();
 var colors = ['rgba(166,206,227,1)','rgba(31,120,180,1)','rgba(178,223,138,1)','rgba(51,160,44,1)','rgba(251,154,153,1)','rgba(227,26,28,1)','rgba(253,191,111,1)','rgba(255,127,0,1)','rgba(202,178,214,1)','rgba(106,61,154,1)'];
 var datasets = [];
 var enddata = [];
@@ -248,23 +272,13 @@ for (i=0; i < selectedcountries.length; i++){
 		borderColor: colors[i],
 		fill:false
 	}
-	console.log(data);
 	datasets[i] = data;
 }
-var myChart = new Chart(ctx, {
-	type: 'line',
-	data: {
-		labels: ["2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010"],
-		datasets: datasets
-	},
-	options: {
-		scales: {
-			yAxes: [{
-				ticks: {
-					beginAtZero:true
-				}
-			}]
-		}
-	}
-});
+myChart.data.datasets.forEach((dataset) => {
+        dataset.data.pop();
+    });
+	
+ myChart.data.datasets = datasets;
+	  myChart.update();
+
 }
