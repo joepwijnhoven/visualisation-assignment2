@@ -119,6 +119,8 @@ queue()
 		drawData(selectedCountries);
 	});
 	
+	svg.selectAll('path.land').each(function(d,i) { var name = countryById[d.id]; data.avgTempCountry[name]; d3.select(this).style("fill", "#FF0000") });
+	
 	function drawData(selectedCountries) {
 		if(!chart) {
 			chart = createChart();
