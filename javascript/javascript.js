@@ -43,6 +43,8 @@ this.createWorld = function() {
 
   var countryTooltip = d3.select("body").append("div").attr("class", "countryTooltip"),
   countryList = d3.select("body").append("select").attr("name", "countries");
+  
+  var yearList = d3.select("body").append("select").attr("name", "years");
 
 
 queue()
@@ -54,22 +56,41 @@ queue()
 	world = data.world;
 	countryData = data.countryData;
 	var selectedCountries = [];
+	var yearsData = ["2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012"];
+	// var min = 0;
+	// var max = 0;
+	// for(var k in data.avgTempCountry){
+		// for(var i = 0; i < data.avgTempCountry[k].length; i++) {
+			// if(data.avgTempCountry[k][i].AvgTemp < min) {
+				// min = data.avgTempCountry[k][i].AvgTemp;
+			// }
+			// if(data.avgTempCountry[k][i].AvgTemp > max) {
+				// max = data.avgTempCountry[k][i].AvgTemp;
+			// }
+		// }
+	// }
+	// console.log(min);
+	// console.log(max);
 	
     var countryById = {};
 	var chart;
     countries = topojson.feature(world, world.objects.countries).features;
-
+	
     //Adding countries to select
-
     countryData.forEach(function(d) {
       countryById[d.id] = d.name;
       option = countryList.append("option");
       option.text(d.name);
       option.property("value", d.id);
     });
-
+	
+	yearsData.forEach(function(d) {
+      option = yearList.append("option");
+      option.text(d);
+      option.property("value", d);
+    });
+	
     //Drawing countries on the globe
-
     var world = svg.selectAll("path.land")
     .data(countries)
     .enter().append("path")
@@ -77,7 +98,6 @@ queue()
     .attr("d", path)
 
     //Drag event
-
     .call(d3.behavior.drag()
       .origin(function() { var r = projection.rotate(); return {x: r[0] / sens, y: -r[1] / sens}; })
       .on("drag", function() {
@@ -88,7 +108,6 @@ queue()
       }))
 
     //Mouse events
-
     .on("mouseover", function(d) {
       countryTooltip.text(countryById[d.id])
       .style("left", (d3.event.pageX + 7) + "px")
@@ -111,15 +130,83 @@ queue()
 		
 		if(index > -1) {
 			selectedCountries.splice(index, 1);
-			d3.select(this).style("fill", "#A98B6F")
+			colorCountry(data.avgTempCountry[name], this);
+			//d3.select(this).style("fill", "#FFFFFF")
 		} else {
 			selectedCountries.push(name);
-			d3.select(this).style("fill", "#FF0000")
+			d3.select(this).style("fill", "#33CC33")
 		}
 		drawData(selectedCountries);
 	});
 	
-	svg.selectAll('path.land').each(function(d,i) { var name = countryById[d.id]; data.avgTempCountry[name]; d3.select(this).style("fill", "#FF0000") });
+	colorCountries()
+	
+	function colorCountries(year){
+		svg.selectAll('path.land').each(function(d,i) { 
+			var name = countryById[d.id];
+			data.avgTempCountry[name]; 
+			
+			if(data.avgTempCountry[name]){
+				colorCountry(data.avgTempCountry[name], this, year)	
+			}
+		});
+	}
+	
+	function colorCountry(country, test, year) {
+		Color = function(hexOrObject) {
+			var obj;
+			if (hexOrObject instanceof Object) {
+				obj = hexOrObject;
+			} else {
+				obj = LinearColorInterpolator.convertHexToRgb(hexOrObject);
+			}
+			this.r = obj.r;
+			this.g = obj.g;
+			this.b = obj.b;
+		}
+		Color.prototype.asRgbCss = function() {
+			return "rgb("+this.r+", "+this.g+", "+this.b+")";
+		}
+
+		var LinearColorInterpolator = {
+			// convert 6-digit hex to rgb components;
+			// accepts with or without hash ("335577" or "#335577")
+			convertHexToRgb: function(hex) {
+				match = hex.replace(/#/,'').match(/.{1,2}/g);
+				return new Color({
+					r: parseInt(match[0], 16),
+					g: parseInt(match[1], 16),
+					b: parseInt(match[2], 16)
+				});
+			},
+			// left and right are colors that you're aiming to find
+			// a color between. Percentage (0-100) indicates the ratio
+			// of right to left. Higher percentage means more right,
+			// lower means more left.
+			findColorBetween: function(left, right, percentage) {
+				newColor = {};
+				components = ["r", "g", "b"];
+				for (var i = 0; i < components.length; i++) {
+					c = components[i];
+					newColor[c] = Math.round(left[c] + (right[c] - left[c]) * percentage / 100);
+				}
+				return new Color(newColor);
+			}
+		}
+		
+		for(var i = 0; i < country.length; i++){
+			if((!year && country[i].year == "2012") || (year && country[i].year == year)) {
+				var min = -18;
+				var max = 49;
+				var r = new Color("#d62234");
+				var l = new Color("#ffffff");
+				percentage = ((country[i].AvgTemp + 18) * 100)/max;
+				var color = LinearColorInterpolator.findColorBetween(l, r, percentage).asRgbCss();
+				d3.select(test).style("fill", color);
+				break;
+			}
+		}
+	}
 	
 	function drawData(selectedCountries) {
 		if(!chart) {
@@ -133,7 +220,7 @@ queue()
 			fillChart(selectedCountries, data.avgTempCountry, chart);
 			for(var i = 0; i < selectedCountries.length; i++) {
 				if(data.avgTempCountry[selectedCountries[i]]) {
-					fillTableWithData(data.avgTempCountry[selectedCountries[i]], selectedCountries[i]);
+					fillTableWithData(data.avgTempCountry[selectedCountries[i]], selectedCountries[i], "2012");
 				}
 			}
 		} else{
@@ -144,28 +231,37 @@ queue()
 	}
 
     //Country focus on option select
+    d3.selectAll("select").on("change", function() {
+		if(this.name == "countries") {
+			  var rotate = projection.rotate(),
+			  focusedCountry = country(countries, this),
+			  p = d3.geo.centroid(focusedCountry);
+			
+			  svg.selectAll(".focused").classed("focused", focused = false);
 
-    d3.select("select").on("change", function() {
-      var rotate = projection.rotate(),
-      focusedCountry = country(countries, this),
-      p = d3.geo.centroid(focusedCountry);
-	
-      svg.selectAll(".focused").classed("focused", focused = false);
+			//Globe rotating
 
-    //Globe rotating
-
-    (function transition() {
-      d3.transition()
-      .duration(2500)
-      .tween("rotate", function() {
-        var r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
-        return function(t) {
-          projection.rotate(r(t));
-          svg.selectAll("path").attr("d", path)
-          .classed("focused", function(d, i) { return d.id == focusedCountry.id ? focused = d : false; });
-        };
-      })
-      })();
+			(function transition() {
+			  d3.transition()
+			  .duration(2500)
+			  .tween("rotate", function() {
+				var r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
+				return function(t) {
+				  projection.rotate(r(t));
+				  svg.selectAll("path").attr("d", path)
+				  .classed("focused", function(d, i) { return d.id == focusedCountry.id ? focused = d : false; });
+				};
+			  })
+			  })();
+		} else {
+			colorCountries(this.value)
+			clearTable();
+			for(var i = 0; i < selectedCountries.length; i++) {
+				if(data.avgTempCountry[selectedCountries[i]]) {
+					fillTableWithData(data.avgTempCountry[selectedCountries[i]], selectedCountries[i], this.value);
+				}
+			}
+		}
     });
 
     function country(cnt, sel) { 
@@ -177,8 +273,6 @@ queue()
   };
 }
 
-
-
 function fillTable(data){
   document.getElementById("info_bottom").appendChild(buildTable());
 }
@@ -189,16 +283,15 @@ function clearTable() {
 	 table.draw();
 }
 
-function fillTableWithData(data, country) {
-	 var table = $('#DataTable').DataTable();
-	 data.forEach(function(el) {
-      
-	  if(el.year == 2012) {
-		table.row.add([country, el.year, el.AvgTemp]);
-		//$("#DataTable > tbody").append(tr);  
-	  }
-	  table.draw();
-
+function fillTableWithData(data, country, year) {
+	var table = $('#DataTable').DataTable();
+	data.forEach(function(el) {
+		var e = document.getElementById("year");
+		if(el.year == year) {
+			table.row.add([country, el.year, el.AvgTemp]);
+			//$("#DataTable > tbody").append(tr);  
+		}
+		table.draw();
     });
    
 }

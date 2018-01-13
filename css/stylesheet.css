@@ -30,13 +30,13 @@ body {
 .land {
   fill: #A98B6F;
   stroke: #FFF;
-  stroke-width: 0.7px;
-}
-
-.land:hover {
-  fill:#33CC33;
   stroke-width: 1px;
 }
+
+/*.land:hover {
+  fill:#33CC33;
+  stroke-width: 1px;
+}*/
 
 .focused {
   fill: #33CC33;
