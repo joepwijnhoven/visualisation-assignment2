@@ -44,7 +44,7 @@ this.createWorld = function() {
   var countryTooltip = d3.select("body").append("div").attr("class", "countryTooltip"),
   countryList = d3.select("body").append("select").attr("name", "countries");
   
-  var yearList = d3.select("body").append("select").attr("name", "years");
+  var yearList = d3.select("body").append("select").attr("name", "years").attr("id", "yearlist");
 
 
 queue()
@@ -145,14 +145,20 @@ queue()
 		svg.selectAll('path.land').each(function(d,i) { 
 			var name = countryById[d.id];
 			data.avgTempCountry[name]; 
-			
-			if(data.avgTempCountry[name]){
+			var countryIsSelected = false;
+			for(var i = 0; i < selectedCountries.length; i++) {
+				if(selectedCountries[i] == name) {
+					countryIsSelected = true;
+					break;
+				}
+			}
+			if(data.avgTempCountry[name] && !countryIsSelected){
 				colorCountry(data.avgTempCountry[name], this, year)	
 			}
 		});
 	}
 	
-	function colorCountry(country, test, year) {
+	function colorCountry(country, test, year) {		
 		Color = function(hexOrObject) {
 			var obj;
 			if (hexOrObject instanceof Object) {
@@ -220,7 +226,7 @@ queue()
 			fillChart(selectedCountries, data.avgTempCountry, chart);
 			for(var i = 0; i < selectedCountries.length; i++) {
 				if(data.avgTempCountry[selectedCountries[i]]) {
-					fillTableWithData(data.avgTempCountry[selectedCountries[i]], selectedCountries[i], "2012");
+					fillTableWithData(data.avgTempCountry[selectedCountries[i]], selectedCountries[i], document.getElementById('yearlist').selectedOptions[0].text);
 				}
 			}
 		} else{
