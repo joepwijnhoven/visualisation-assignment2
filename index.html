@@ -21,7 +21,12 @@
 	</script>	
 	<div id="graph">
 		<div id="info_top">
-			<canvas id="myChart" width="100%" height="30%"></canvas>
+			<select id="Chart" style="left: 15%;">
+				<option value="Line">Line Chart</option>
+				<option value="Bar">Bar Chart</option>
+			</select>
+				
+			<canvas id="myChart" width="100%" height="30%" style="margin-top:50px;"></canvas>
 		<div id="info_bottom">
 			<table id="DataTable">
 
@@ -30,12 +35,8 @@
 	</div>
 	</body>
 	<script>
-	['rgb(166,206,227)','rgb(31,120,180)','rgb(178,223,138)','rgb(51,160,44)','rgb(251,154,153)','rgb(227,26,28)','rgb(253,191,111)','rgb(255,127,0)','rgb(202,178,214)','rgb(106,61,154)']
-var data = [
 
-];	
-		//var data = new Data();
-		fillTable(data);
+		fillTable();
 		createTable();
 	</script>
 </html>

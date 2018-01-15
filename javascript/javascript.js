@@ -215,12 +215,30 @@ queue()
 	}
 	
 	function drawData(selectedCountries) {
-		if(!chart) {
+			
+	d3.select("#Chart").on("change", function() {
+		console.log(chart);
+		if(chart){
+			chart.destroy();
+		}
+		
+		if(this.value == "Bar"){
+			chart = createChart1();
+			drawData(selectedCountries);
+		}
+		else{
 			chart = createChart();
+			drawData(selectedCountries);
+		}
+	});
+		
+		if(!chart) {
+			chart = createChart()
 		}
 		if(selectedCountries.length > 0) {
 			d3.select("#graph").transition().duration(1000).style("right", "0px");
-			d3.select("select").transition().duration(1000).style("left", "450px");
+			d3.selectAll("select").transition().duration(1000).style("left", "450px");
+			d3.select("#Chart").transition().duration(1000).style("left", "15%");
 			svg.transition().duration(1000).style("left", "450px");
 			clearTable();
 			fillChart(selectedCountries, data.avgTempCountry, chart);
@@ -231,13 +249,14 @@ queue()
 			}
 		} else{
 			d3.select("#graph").transition().duration(1000).style("right", "-51%");
-			d3.select("select").transition().duration(1000).style("left", window.innerWidth / 2 + "px");
+			d3.selectAll("select").transition().duration(1000).style("left", window.innerWidth / 2 + "px");
 			svg.transition().duration(1000).style("left", window.innerWidth / 2 + "px");
 		}
 	}
 
     //Country focus on option select
     d3.selectAll("select").on("change", function() {
+
 		if(this.name == "countries") {
 			  var rotate = projection.rotate(),
 			  focusedCountry = country(countries, this),
@@ -330,6 +349,27 @@ function createChart(){
 	var ctx = document.getElementById("myChart").getContext('2d');
 	var myChart = new Chart(ctx, {
 	type: 'line',
+	data: {
+		labels: ["2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010"],
+		datasets: []
+	},
+	options: {
+		scales: {
+			yAxes: [{
+				ticks: {
+					beginAtZero:true
+				}
+			}]
+		}
+	}
+	});
+	return myChart;
+}
+
+function createChart1(){
+	var ctx = document.getElementById("myChart").getContext('2d');
+	var myChart = new Chart(ctx, {
+	type: 'bar',
 	data: {
 		labels: ["2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010"],
 		datasets: []
