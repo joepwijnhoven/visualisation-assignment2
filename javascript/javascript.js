@@ -218,6 +218,7 @@ queue()
 		if(selectedCountries.length > 0) {
 			d3.select("#graph").transition().duration(1000).style("right", "0px");
 			d3.selectAll("select").transition().duration(1000).style("left", "450px");
+			d3.select("#legenda").transition().duration(1000).style("left", "450px");
 			d3.select("#Chart").transition().duration(1000).style("left", "100px");
 			svg.transition().duration(1000).style("left", "450px");
 			clearTable();
@@ -231,6 +232,7 @@ queue()
 		} else{
 			d3.select("#graph").transition().duration(1000).style("right", "-51%");
 			d3.selectAll("select").transition().duration(1000).style("left", window.innerWidth / 2 + "px");
+			d3.select("#legenda").transition().duration(1000).style("left", window.innerWidth / 2 + "px");
 			svg.transition().duration(1000).style("left", window.innerWidth / 2 + "px");
 		}
 	}
@@ -261,6 +263,24 @@ queue()
 		});
 	}
 
+	function changeLegenda() {
+		datatype = document.getElementById('datalist').selectedOptions[0].text;
+		if(datatype == "Average Temperature Data"){
+			var el = document.getElementById('bar');
+			el.src = "../Visualisation-assignment2/img/avgtemp.jpg"
+			var min = document.getElementById('begin');
+			var max = document.getElementById('end');
+			min.innerHTML = "-18";
+			max.innerHTML = "48";
+		} else {
+			var el = document.getElementById('bar');
+			el.src = "../Visualisation-assignment2/img/exportimport.jpg"
+			var min = document.getElementById('begin');
+			var max = document.getElementById('end');
+			min.innerHTML = "0";
+			max.innerHTML = "2.410.855.500";
+		}
+	}
 
     //Country focus on option select
     d3.selectAll("select").on("change", function() {
@@ -288,13 +308,16 @@ queue()
 			  })();
 		} else {
 			clearCountries();
+			changeLegenda();
+			var datatype = getDataObjectName(document.getElementById('datalist').selectedOptions[0].text);
 			var table = $('#DataTable').DataTable();
 			$(table.column(2).header()).text(document.getElementById('datalist').selectedOptions[0].text);
-			colorCountries(document.getElementById('yearlist').selectedOptions[0].text, getDataObjectName(document.getElementById('datalist').selectedOptions[0].text))
+			colorCountries(document.getElementById('yearlist').selectedOptions[0].text, datatype)
+			fillChart(selectedCountries, data[datatype], chart);
 			clearTable();
 			for(var i = 0; i < selectedCountries.length; i++) {
-				if(data[getDataObjectName(document.getElementById('datalist').selectedOptions[0].text)][selectedCountries[i]]) {
-					fillTableWithData(data[getDataObjectName(document.getElementById('datalist').selectedOptions[0].text)][selectedCountries[i]], selectedCountries[i], document.getElementById('yearlist').selectedOptions[0].text);
+				if(data[datatype][selectedCountries[i]]) {
+					fillTableWithData(data[datatype][selectedCountries[i]], selectedCountries[i], document.getElementById('yearlist').selectedOptions[0].text);
 				}
 			}
 		}

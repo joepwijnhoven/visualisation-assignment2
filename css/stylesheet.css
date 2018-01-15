@@ -52,6 +52,24 @@ body {
   fill: #33CC33;
 }
 
+#begin{
+	float:left;
+	margin-right: 5px;
+}
+
+#end{
+	float:right;
+	margin-left: 5px;
+}
+
+#legenda {
+	color: #fff;
+	position: fixed;
+	transform: translate(-50%, -50%);
+	left: 50%;
+	top: 90vh;
+}
+
 select {
   position: absolute;
   left: 50%;
