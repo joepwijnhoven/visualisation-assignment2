@@ -354,6 +354,9 @@ function createChart(){
 		datasets: []
 	},
 	options: {
+		legend: {
+			position: 'right',
+		},
 		scales: {
 			yAxes: [{
 				ticks: {
@@ -375,6 +378,9 @@ function createChart1(){
 		datasets: []
 	},
 	options: {
+		legend: {
+			position: 'right',
+		},
 		scales: {
 			yAxes: [{
 				ticks: {
