@@ -238,7 +238,7 @@ queue()
 		if(selectedCountries.length > 0) {
 			d3.select("#graph").transition().duration(1000).style("right", "0px");
 			d3.selectAll("select").transition().duration(1000).style("left", "450px");
-			d3.select("#Chart").transition().duration(1000).style("left", "15%");
+			d3.select("#Chart").transition().duration(1000).style("left", "100px");
 			svg.transition().duration(1000).style("left", "450px");
 			clearTable();
 			fillChart(selectedCountries, data.avgTempCountry, chart);
