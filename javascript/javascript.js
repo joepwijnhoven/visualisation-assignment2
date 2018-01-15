@@ -124,8 +124,11 @@ queue()
 		if(index > -1) {
 			var dataType = getDataObjectName(document.getElementById('datalist').selectedOptions[0].text);
 			selectedCountries.splice(index, 1);
-			colorCountry(data[dataType][name], this, document.getElementById('yearlist').selectedOptions[0].text, dataType);
-			//d3.select(this).style("fill", "#FFFFFF")
+			if(data[dataType][name] && data[dataType][name][document.getElementById('yearlist').selectedOptions[0].text]){
+				colorCountry(data[dataType][name], this, document.getElementById('yearlist').selectedOptions[0].text, dataType);
+			} else {
+				d3.select(this).style("fill", "#696969")
+			}
 		} else {
 			selectedCountries.push(name);
 			d3.select(this).style("fill", "#33CC33")
@@ -167,16 +170,27 @@ queue()
 		if(!year){
 			year = "2001";
 		}
-		
-		if(datatype == "avgTempCountryReformed") {
-			var min = -18;
-			var max = 49;
-			var percentage = ((country[year] + 18) * 100)/max;
-			d3.select(obj).style("fill", "hsl("+ (300 - (percentage * 3)) + ", 100%, 50%)");
+		if(country[year]){
+			if(datatype == "avgTempCountryReformed") {
+				var min = -18;
+				var max = 49;
+				var percentage = ((country[year] + 18) * 100)/max;
+				d3.select(obj).style("fill", "hsl("+ (300 - (percentage * 3)) + ", 100%, 50%)");
+			} else {
+				var max = 2410855500;
+				// 56262188.99488994
+				var average = 56262188;
+				
+				if(country[year] > average) {
+					var percentage = (((country[year]) * 100)/max) + 30;
+					d3.select(obj).style("fill", lerpColor("#ffffbf", "#91bfdb", percentage / 100));
+				} else {
+					var percentage = (((country[year]) * 100)/average - 30);
+					d3.select(obj).style("fill", lerpColor("#fc8d59", "#ffffbf", percentage / 100));
+				}
+			}
 		} else {
-			var max = 486022068;
-			var percentage = ((country[year]) * 100)/max;
-			d3.select(obj).style("fill", lerpColor("#FF0000", "#FFFFFF", percentage / 100));
+			
 		}
 	}
 	
@@ -230,6 +244,23 @@ queue()
 			return "importDataReformed";
 		}
 	}
+	
+	function clearCountries(){
+		svg.selectAll('path.land').each(function(d,i) { 
+			var name = countryById[d.id];
+			var countryIsSelected = false;
+			for(var i = 0; i < selectedCountries.length; i++) {
+				if(selectedCountries[i] == name) {
+					countryIsSelected = true;
+					break;
+				}
+			}
+			if(!countryIsSelected) {
+				d3.select(this).style("fill", "#696969")
+			}
+		});
+	}
+
 
     //Country focus on option select
     d3.selectAll("select").on("change", function() {
@@ -256,11 +287,14 @@ queue()
 			  })
 			  })();
 		} else {
+			clearCountries();
+			var table = $('#DataTable').DataTable();
+			$(table.column(2).header()).text(document.getElementById('datalist').selectedOptions[0].text);
 			colorCountries(document.getElementById('yearlist').selectedOptions[0].text, getDataObjectName(document.getElementById('datalist').selectedOptions[0].text))
 			clearTable();
 			for(var i = 0; i < selectedCountries.length; i++) {
-				if(data.avgTempCountry[selectedCountries[i]]) {
-					fillTableWithData(data[getDataObjectName(document.getElementById('datalist').selectedOptions[0].text)][selectedCountries[i]], selectedCountries[i], this.value);
+				if(data[getDataObjectName(document.getElementById('datalist').selectedOptions[0].text)][selectedCountries[i]]) {
+					fillTableWithData(data[getDataObjectName(document.getElementById('datalist').selectedOptions[0].text)][selectedCountries[i]], selectedCountries[i], document.getElementById('yearlist').selectedOptions[0].text);
 				}
 			}
 		}
@@ -273,6 +307,38 @@ queue()
     };
 	
   };
+  
+  tempfunction()
+  
+  function tempfunction() {
+	  var data = new Data();
+	  var amount = 0;
+	  var max = 0;
+	  var average = 0;
+	  var total = 0;
+	  for(var i in data.exportDataReformed) {
+		if(i != "World") {
+		for(var j in data.exportDataReformed[i]){
+			amount++;
+			total += data.exportDataReformed[i][j];
+			if(data.exportDataReformed[i][j] > max){
+				max = data.exportDataReformed[i][j];
+			}
+		}
+		}
+      }	
+	  for(var i in data.importDataReformed) {
+		  if(i != "World") {
+		for(var j in data.importDataReformed[i]){
+			amount++;
+			total += data.importDataReformed[i][j];
+			if(data.importDataReformed[i][j] > max){
+				max = data.importDataReformed[i][j];
+			}
+		}
+		  }
+      }
+  }
 }
 
 function fillTable(){
@@ -300,7 +366,7 @@ function buildTable() {
     var thead = document.createElement("thead");
     var tbody = document.createElement("tbody");
     var headRow = document.createElement("tr");
-    ["Country","Year","Average Temperature"].forEach(function(el) {
+    ["Country","Year","Average Temperature Data"].forEach(function(el) {
       var th=document.createElement("th");
       th.appendChild(document.createTextNode(el));
       headRow.appendChild(th);
