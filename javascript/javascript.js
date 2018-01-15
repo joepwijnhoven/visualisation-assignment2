@@ -45,32 +45,19 @@ this.createWorld = function() {
   countryList = d3.select("body").append("select").attr("name", "countries");
   
   var yearList = d3.select("body").append("select").attr("name", "years").attr("id", "yearlist");
+  var dataList = d3.select("body").append("select").attr("name", "data").attr("id", "datalist");
 
 
 queue()
     .await(ready);
 
  function ready(error, world, countryData) {
-	
 	var data = new Data();
 	world = data.world;
 	countryData = data.countryData;
 	var selectedCountries = [];
 	var yearsData = ["2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012"];
-	// var min = 0;
-	// var max = 0;
-	// for(var k in data.avgTempCountry){
-		// for(var i = 0; i < data.avgTempCountry[k].length; i++) {
-			// if(data.avgTempCountry[k][i].AvgTemp < min) {
-				// min = data.avgTempCountry[k][i].AvgTemp;
-			// }
-			// if(data.avgTempCountry[k][i].AvgTemp > max) {
-				// max = data.avgTempCountry[k][i].AvgTemp;
-			// }
-		// }
-	// }
-	// console.log(min);
-	// console.log(max);
+	var typesOfData = ["Average Temperature Data", "Import Data", "Export Data"];
 	
     var countryById = {};
 	var chart;
@@ -86,6 +73,12 @@ queue()
 	
 	yearsData.forEach(function(d) {
       option = yearList.append("option");
+      option.text(d);
+      option.property("value", d);
+    });
+	
+	typesOfData.forEach(function(d) {
+      option = dataList.append("option");
       option.text(d);
       option.property("value", d);
     });
@@ -129,8 +122,9 @@ queue()
 		var index = selectedCountries.indexOf(name);
 		
 		if(index > -1) {
+			var dataType = getDataObjectName(document.getElementById('datalist').selectedOptions[0].text);
 			selectedCountries.splice(index, 1);
-			colorCountry(data.avgTempCountry[name], this);
+			colorCountry(data[dataType][name], this, document.getElementById('yearlist').selectedOptions[0].text, dataType);
 			//d3.select(this).style("fill", "#FFFFFF")
 		} else {
 			selectedCountries.push(name);
@@ -139,12 +133,11 @@ queue()
 		drawData(selectedCountries);
 	});
 	
-	colorCountries()
+	colorCountries("2001", "avgTempCountryReformed")
 	
-	function colorCountries(year){
+	function colorCountries(year, dataType){
 		svg.selectAll('path.land').each(function(d,i) { 
 			var name = countryById[d.id];
-			data.avgTempCountry[name]; 
 			var countryIsSelected = false;
 			for(var i = 0; i < selectedCountries.length; i++) {
 				if(selectedCountries[i] == name) {
@@ -152,65 +145,38 @@ queue()
 					break;
 				}
 			}
-			if(data.avgTempCountry[name] && !countryIsSelected){
-				colorCountry(data.avgTempCountry[name], this, year)	
+			if(data[dataType][name] && !countryIsSelected){
+				colorCountry(data[dataType][name], this, year, dataType)	
 			}
 		});
 	}
 	
-	function colorCountry(country, test, year) {		
-		Color = function(hexOrObject) {
-			var obj;
-			if (hexOrObject instanceof Object) {
-				obj = hexOrObject;
-			} else {
-				obj = LinearColorInterpolator.convertHexToRgb(hexOrObject);
-			}
-			this.r = obj.r;
-			this.g = obj.g;
-			this.b = obj.b;
-		}
-		Color.prototype.asRgbCss = function() {
-			return "rgb("+this.r+", "+this.g+", "+this.b+")";
-		}
+	function lerpColor(a, b, amount) { 
+		var ah = parseInt(a.replace(/#/g, ''), 16),
+			ar = ah >> 16, ag = ah >> 8 & 0xff, ab = ah & 0xff,
+			bh = parseInt(b.replace(/#/g, ''), 16),
+			br = bh >> 16, bg = bh >> 8 & 0xff, bb = bh & 0xff,
+			rr = ar + amount * (br - ar),
+			rg = ag + amount * (bg - ag),
+			rb = ab + amount * (bb - ab);
 
-		var LinearColorInterpolator = {
-			// convert 6-digit hex to rgb components;
-			// accepts with or without hash ("335577" or "#335577")
-			convertHexToRgb: function(hex) {
-				match = hex.replace(/#/,'').match(/.{1,2}/g);
-				return new Color({
-					r: parseInt(match[0], 16),
-					g: parseInt(match[1], 16),
-					b: parseInt(match[2], 16)
-				});
-			},
-			// left and right are colors that you're aiming to find
-			// a color between. Percentage (0-100) indicates the ratio
-			// of right to left. Higher percentage means more right,
-			// lower means more left.
-			findColorBetween: function(left, right, percentage) {
-				newColor = {};
-				components = ["r", "g", "b"];
-				for (var i = 0; i < components.length; i++) {
-					c = components[i];
-					newColor[c] = Math.round(left[c] + (right[c] - left[c]) * percentage / 100);
-				}
-				return new Color(newColor);
-			}
+		return '#' + ((1 << 24) + (rr << 16) + (rg << 8) + rb | 0).toString(16).slice(1);
+	}
+	
+	function colorCountry(country, obj, year, datatype) {
+		if(!year){
+			year = "2001";
 		}
 		
-		for(var i = 0; i < country.length; i++){
-			if((!year && country[i].year == "2012") || (year && country[i].year == year)) {
-				var min = -18;
-				var max = 49;
-				var r = new Color("#d62234");
-				var l = new Color("#ffffff");
-				percentage = ((country[i].AvgTemp + 18) * 100)/max;
-				//var color = LinearColorInterpolator.findColorBetween(l, r, percentage).asRgbCss();
-				d3.select(test).style("fill", "hsl("+ (300 - (percentage * 3)) + ", 100%, 50%)");
-				break;
-			}
+		if(datatype == "avgTempCountryReformed") {
+			var min = -18;
+			var max = 49;
+			var percentage = ((country[year] + 18) * 100)/max;
+			d3.select(obj).style("fill", "hsl("+ (300 - (percentage * 3)) + ", 100%, 50%)");
+		} else {
+			var max = 486022068;
+			var percentage = ((country[year]) * 100)/max;
+			d3.select(obj).style("fill", lerpColor("#FF0000", "#FFFFFF", percentage / 100));
 		}
 	}
 	
@@ -220,19 +186,30 @@ queue()
 		}
 		if(selectedCountries.length > 0) {
 			d3.select("#graph").transition().duration(1000).style("right", "0px");
-			d3.select("select").transition().duration(1000).style("left", "450px");
+			d3.selectAll("select").transition().duration(1000).style("left", "450px");
 			svg.transition().duration(1000).style("left", "450px");
 			clearTable();
-			fillChart(selectedCountries, data.avgTempCountry, chart);
+			datatype = getDataObjectName(document.getElementById('datalist').selectedOptions[0].text);
+			fillChart(selectedCountries, data[datatype], chart);
 			for(var i = 0; i < selectedCountries.length; i++) {
-				if(data.avgTempCountry[selectedCountries[i]]) {
-					fillTableWithData(data.avgTempCountry[selectedCountries[i]], selectedCountries[i], document.getElementById('yearlist').selectedOptions[0].text);
+				if(data[datatype][selectedCountries[i]]) {
+					fillTableWithData(data[datatype][selectedCountries[i]], selectedCountries[i], document.getElementById('yearlist').selectedOptions[0].text);
 				}
 			}
 		} else{
 			d3.select("#graph").transition().duration(1000).style("right", "-51%");
-			d3.select("select").transition().duration(1000).style("left", window.innerWidth / 2 + "px");
+			d3.selectAll("select").transition().duration(1000).style("left", window.innerWidth / 2 + "px");
 			svg.transition().duration(1000).style("left", window.innerWidth / 2 + "px");
+		}
+	}
+	
+	function getDataObjectName(name) {
+		if(name == "Average Temperature Data") {
+			return "avgTempCountryReformed";
+		} else if(name == "Export Data") {
+			return "exportDataReformed";
+		} else {
+			return "importDataReformed";
 		}
 	}
 
@@ -260,11 +237,11 @@ queue()
 			  })
 			  })();
 		} else {
-			colorCountries(this.value)
+			colorCountries(document.getElementById('yearlist').selectedOptions[0].text, getDataObjectName(document.getElementById('datalist').selectedOptions[0].text))
 			clearTable();
 			for(var i = 0; i < selectedCountries.length; i++) {
 				if(data.avgTempCountry[selectedCountries[i]]) {
-					fillTableWithData(data.avgTempCountry[selectedCountries[i]], selectedCountries[i], this.value);
+					fillTableWithData(data[getDataObjectName(document.getElementById('datalist').selectedOptions[0].text)][selectedCountries[i]], selectedCountries[i], this.value);
 				}
 			}
 		}
@@ -275,11 +252,11 @@ queue()
         if(cnt[i].id == sel.value) {return cnt[i];}
       }
     };
-
+	
   };
 }
 
-function fillTable(data){
+function fillTable(){
   document.getElementById("info_bottom").appendChild(buildTable());
 }
 
@@ -291,15 +268,11 @@ function clearTable() {
 
 function fillTableWithData(data, country, year) {
 	var table = $('#DataTable').DataTable();
-	data.forEach(function(el) {
-		var e = document.getElementById("year");
-		if(el.year == year) {
-			table.row.add([country, el.year, el.AvgTemp]);
-			//$("#DataTable > tbody").append(tr);  
-		}
-		table.draw();
-    });
-   
+	var e = document.getElementById("year");
+	if(data[year]) {
+		table.row.add([country, year, data[year]]);
+	}
+	table.draw(); 
 }
 
 function buildTable() {
@@ -355,14 +328,14 @@ var enddata = [];
 
 for (j=0; j < selectedcountries.length; j++){
 	 var temp = data[selectedcountries[j]];
-		for (k=0; k < temp.length; k++){
-			if (temp[k].year > 2000 && temp[k].year < 2011){
+		for(var l in temp){
+			if (l > 2000 && l < 2011){
 				if (!(enddata[j])) {
 					enddata[j]=[];
 				}
-				enddata[j].push(temp[k].AvgTemp); 
+				enddata[j].push(temp[l]); 
+			}
 		}
-	}
 }
 
 for (i=0; i < selectedcountries.length; i++){
