@@ -183,7 +183,7 @@ queue()
 				
 				if(country[year] > average) {
 					var percentage = (((country[year]) * 100)/max) + 30;
-					d3.select(obj).style("fill", lerpColor("#ffffbf", "#91bfdb", percentage / 100));
+					d3.select(obj).style("fill", lerpColor("#ffffbf", "#2c7bb6", percentage / 100));
 				} else {
 					var percentage = (((country[year]) * 100)/average - 30);
 					d3.select(obj).style("fill", lerpColor("#fc8d59", "#ffffbf", percentage / 100));
