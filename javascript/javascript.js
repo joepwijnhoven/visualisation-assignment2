@@ -207,8 +207,8 @@ queue()
 				var r = new Color("#d62234");
 				var l = new Color("#ffffff");
 				percentage = ((country[i].AvgTemp + 18) * 100)/max;
-				var color = LinearColorInterpolator.findColorBetween(l, r, percentage).asRgbCss();
-				d3.select(test).style("fill", color);
+				//var color = LinearColorInterpolator.findColorBetween(l, r, percentage).asRgbCss();
+				d3.select(test).style("fill", "hsl("+ (300 - (percentage * 3)) + ", 100%, 50%)");
 				break;
 			}
 		}
