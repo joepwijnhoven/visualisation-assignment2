@@ -42,7 +42,7 @@ this.createWorld = function() {
       }));
 
   var countryTooltip = d3.select("body").append("div").attr("class", "countryTooltip"),
-  countryList = d3.select("body").append("select").attr("name", "countries");
+  countryList = d3.select("body").append("select").attr("name", "countries").attr("id", "countries");
   
   var yearList = d3.select("body").append("select").attr("name", "years").attr("id", "yearlist");
   var dataList = d3.select("body").append("select").attr("name", "data").attr("id", "datalist");
@@ -218,6 +218,7 @@ queue()
 		if(selectedCountries.length > 0) {
 			d3.select("#graph").transition().duration(1000).style("right", "0px");
 			d3.selectAll("select").transition().duration(1000).style("left", "450px");
+			d3.select("#Chart").transition().duration(1000).style("left", "100px");
 			svg.transition().duration(1000).style("left", "450px");
 			clearTable();
 			datatype = getDataObjectName(document.getElementById('datalist').selectedOptions[0].text);
@@ -392,6 +393,9 @@ function createChart(){
 		datasets: []
 	},
 	options: {
+		legend: {
+			position: 'right',
+		},
 		scales: {
 			yAxes: [{
 				ticks: {
@@ -413,6 +417,9 @@ function createChart1(){
 		datasets: []
 	},
 	options: {
+		legend: {
+			position: 'right',
+		},
 		scales: {
 			yAxes: [{
 				ticks: {
