@@ -42,7 +42,7 @@ this.createWorld = function() {
       }));
 
   var countryTooltip = d3.select("body").append("div").attr("class", "countryTooltip"),
-  countryList = d3.select("body").append("select").attr("name", "countries");
+  countryList = d3.select("body").append("select").attr("name", "countries").attr("id", "countries");
   
   var yearList = d3.select("body").append("select").attr("name", "years").attr("id", "yearlist");
   var dataList = d3.select("body").append("select").attr("name", "data").attr("id", "datalist");
