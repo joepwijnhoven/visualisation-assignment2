@@ -102,7 +102,10 @@ queue()
 
     //Mouse events
     .on("mouseover", function(d) {
-      countryTooltip.text(countryById[d.id])
+		var data = new Data()
+		var year = document.getElementById('yearlist').selectedOptions[0].text;
+		var dataType = getDataObjectName(document.getElementById('datalist').selectedOptions[0].text);
+      countryTooltip.text(countryById[d.id] + ", " + (dataType == "avgTempCountryReformed" ? data[dataType][countryById[d.id]][year].toFixed(2) : data[dataType][countryById[d.id]][year]))
       .style("left", (d3.event.pageX + 7) + "px")
       .style("top", (d3.event.pageY - 15) + "px")
       .style("display", "block")
@@ -378,7 +381,12 @@ function fillTableWithData(data, country, year) {
 	var table = $('#DataTable').DataTable();
 	var e = document.getElementById("year");
 	if(data[year]) {
-		table.row.add([country, year, data[year]]);
+		if(data[year] % 1 == 0) {
+			table.row.add([country, year, data[year]]);
+		} else {
+			table.row.add([country, year, data[year].toFixed(2)]);
+		}
+		
 	}
 	table.draw(); 
 }
