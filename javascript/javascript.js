@@ -200,7 +200,7 @@ queue()
 	function drawData(selectedCountries) {
 			
 	d3.select("#Chart").on("change", function() {
-		console.log(chart);
+		console.log(this.value + ", " + chart);
 		if(chart){
 			chart.destroy();
 		}
@@ -209,10 +209,24 @@ queue()
 			chart = createChart1();
 			drawData(selectedCountries);
 		}
+		else if(this.value == "Stacked1"){
+			chart = createChart2();
+			drawData(selectedCountries);
+		}
+		
+		else if(this.value == "Stacked2"){
+			chart = createChart3();
+			drawData(selectedCountries);
+		}
+		else if(this.value == "Radar"){
+			chart = createChart5();
+			drawData(selectedCountries);
+		}
 		else{
 			chart = createChart();
 			drawData(selectedCountries);
 		}
+		console.log(chart);
 	});
 		
 		if(!chart) {
@@ -429,6 +443,7 @@ function createChart(){
 		},
 		scales: {
 			yAxes: [{
+				Stacked: false,
 				ticks: {
 					beginAtZero:true
 				}
@@ -463,11 +478,73 @@ function createChart1(){
 	return myChart;
 }
 
+function createChart2(){
+	var ctx = document.getElementById("myChart").getContext('2d');
+	var myChart = new Chart(ctx, {
+	type: 'line',
+	data: {
+		labels: ["2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010"],
+		datasets: []
+	},
+	options: {
+		legend: {
+			position: 'right',
+		},
+		scales: {
+			yAxes: [{
+				stacked: true
+			}]
+		}
+	}
+	});
+	return myChart;
+}
+function createChart3(){
+	var ctx = document.getElementById("myChart").getContext('2d');
+	var myChart = new Chart(ctx, {
+	type: 'bar',
+	data: {
+		labels: ["2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010"],
+		datasets: []
+	},
+	options: {
+		legend: {
+			position: 'right',
+		},
+		scales: {
+			yAxes: [{
+				stacked: true
+			}]
+		}
+	}
+	});
+	return myChart;
+}
+
+function createChart5(){
+	var ctx = document.getElementById("myChart").getContext('2d');
+	var myChart = new Chart(ctx, {
+	type: 'radar',
+	data: {
+		labels: ["2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010"],
+		datasets: []
+	},
+	options: {
+		legend: {
+			position: 'right',
+		},
+	}
+	});
+	return myChart;
+}
+
 function fillChart(selectedcountries, data, myChart){
 //document.getElementById("myChart").remove();
 var colors = ['rgba(166,206,227,1)','rgba(31,120,180,1)','rgba(178,223,138,1)','rgba(51,160,44,1)','rgba(251,154,153,1)','rgba(227,26,28,1)','rgba(253,191,111,1)','rgba(255,127,0,1)','rgba(202,178,214,1)','rgba(106,61,154,1)'];
 var datasets = [];
 var enddata = [];
+
+
 
 for (j=0; j < selectedcountries.length; j++){
 	 var temp = data[selectedcountries[j]];
@@ -479,17 +556,34 @@ for (j=0; j < selectedcountries.length; j++){
 				enddata[j].push(temp[l]); 
 			}
 		}
-}
-
-for (i=0; i < selectedcountries.length; i++){
-	data = {
-		label: selectedcountries[i],
-		data: enddata[i],
-		backgroundColor: colors[i],
-		borderColor: colors[i],
-		fill:false
 	}
-	datasets[i] = data;
+
+
+console.log(d3.select("#Chart").node().value);
+	
+if(d3.select("#Chart").node().value == "Stacked1" || d3.select("#Chart").node().value == "Stacked2"){
+	for (i=0; i < selectedcountries.length; i++){
+		data = {
+			label: selectedcountries[i],
+			data: enddata[i],
+			backgroundColor: colors[i],
+			borderColor: colors[i], 
+			fill: 'origin'
+		}
+		datasets[i] = data;
+	}
+}
+else {
+	for (i=0; i < selectedcountries.length; i++){
+		data = {
+			label: selectedcountries[i],
+			data: enddata[i],
+			backgroundColor: colors[i],
+			borderColor: colors[i], 
+			fill: false
+		}
+		datasets[i] = data;
+	}
 }
 myChart.data.datasets.forEach((dataset) => {
         dataset.data.pop();
