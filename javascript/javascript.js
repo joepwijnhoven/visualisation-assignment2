@@ -200,7 +200,6 @@ queue()
 	function drawData(selectedCountries) {
 			
 	d3.select("#Chart").on("change", function() {
-		console.log(this.value + ", " + chart);
 		if(chart){
 			chart.destroy();
 		}
@@ -226,7 +225,6 @@ queue()
 			chart = createChart();
 			drawData(selectedCountries);
 		}
-		console.log(chart);
 	});
 		
 		if(!chart) {
@@ -457,7 +455,7 @@ this.createTable = function() {
  
             // Update footer
             $( api.column( 2 ).footer() ).html(
-                '$'+pageTotal +' (total +' total)'
+                '$'+pageTotal +' ('+ total +' total)'
 			);}
 		});
 	})
