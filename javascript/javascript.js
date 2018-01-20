@@ -455,7 +455,7 @@ this.createTable = function() {
  
             // Update footer
             $( api.column( 2 ).footer() ).html(
-                '$'+pageTotal +' ('+ total +' total)'
+                ''+pageTotal +' ('+ total +' total)'
 			);}
 		});
 	})
