@@ -402,7 +402,7 @@ function fillTableWithData(data, country, year, datatype) {
 			var d = new Data();
 			world = d[datatype]["World"][year];
 			console.log(world);
-			table.row.add([country, year, data[year].formatMoney(2), (parseInt(data[year]) * 100 / parseInt(world)).toFixed(4) + "%"]);
+			table.row.add([country, year, data[year].formatMoney(2), (parseInt(data[year]) * 100 / parseInt(world)).toFixed(4)]);
 		} else {
 			table.row.add([country, year, data[year].formatMoney(2), ""]);
 		}
@@ -465,8 +465,8 @@ this.createTable = function() {
                 }, 0 );
  
             // Total over this page
-            pageTotal = api
-                .column( 2, { page: 'current'} )
+            total1 = api
+                .column( 3 )
                 .data()
                 .reduce( function (a, b) {
                     return intVal(a) + intVal(b);
@@ -474,7 +474,8 @@ this.createTable = function() {
  
             // Update footer
             $( api.column( 2 ).footer() ).html(
-                ' ('+ (total).formatMoney(2) +' total)'
+                ' ('+ (total).formatMoney(2) +' total, ' + total1 + ' percent of world total)'
+
 			);}
 		});
 	})
