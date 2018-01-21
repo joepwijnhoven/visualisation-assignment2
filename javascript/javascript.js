@@ -402,9 +402,9 @@ function fillTableWithData(data, country, year, datatype) {
 			var d = new Data();
 			world = d[datatype]["World"][year];
 			console.log(world);
-			table.row.add([country, year, data[year], (parseInt(data[year]) * 100 / parseInt(world)).toFixed(4) + "%"]);
+			table.row.add([country, year, data[year].formatMoney(2), (parseInt(data[year]) * 100 / parseInt(world)).toFixed(4) + "%"]);
 		} else {
-			table.row.add([country, year, data[year].toFixed(2), ""]);
+			table.row.add([country, year, data[year].formatMoney(2), ""]);
 		}
 		
 	}
@@ -428,8 +428,19 @@ function buildTable() {
     return table;
 }
 
+Number.prototype.formatMoney = function(c, d, t){
+var n = this, 
+    c = isNaN(c = Math.abs(c)) ? 2 : c, 
+    d = d == undefined ? "." : d, 
+    t = t == undefined ? "," : t, 
+    s = n < 0 ? "-" : "", 
+    i = String(parseInt(n = Math.abs(Number(n) || 0).toFixed(c))), 
+    j = (j = i.length) > 3 ? j % 3 : 0;
+   return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
+ };
 
 this.createTable = function() {
+	
 	$(document).ready(function(){
 	$('#DataTable').DataTable({ 
 	paging: false,
@@ -463,7 +474,7 @@ this.createTable = function() {
  
             // Update footer
             $( api.column( 2 ).footer() ).html(
-                ''+pageTotal +' ('+ total +' total)'
+                ' ('+ (total).formatMoney(2) +' total)'
 			);}
 		});
 	})
