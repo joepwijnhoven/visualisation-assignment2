@@ -241,7 +241,7 @@ queue()
 			fillChart(selectedCountries, data[datatype], chart);
 			for(var i = 0; i < selectedCountries.length; i++) {
 				if(data[datatype][selectedCountries[i]]) {
-					fillTableWithData(data[datatype][selectedCountries[i]], selectedCountries[i], document.getElementById('yearlist').selectedOptions[0].text);
+					fillTableWithData(data[datatype][selectedCountries[i]], selectedCountries[i], document.getElementById('yearlist').selectedOptions[0].text, datatype);
 				}
 			}
 		} else{
@@ -327,12 +327,17 @@ queue()
 			var datatype = getDataObjectName(document.getElementById('datalist').selectedOptions[0].text);
 			var table = $('#DataTable').DataTable();
 			$(table.column(2).header()).text(document.getElementById('datalist').selectedOptions[0].text);
+			if(datatype == "avgTempCountryReformed"){
+				$(table.column(3).header()).text("");
+			} else {
+				$(table.column(3).header()).text("Percentage");
+			}
 			colorCountries(document.getElementById('yearlist').selectedOptions[0].text, datatype)
 			fillChart(selectedCountries, data[datatype], chart);
 			clearTable();
 			for(var i = 0; i < selectedCountries.length; i++) {
 				if(data[datatype][selectedCountries[i]]) {
-					fillTableWithData(data[datatype][selectedCountries[i]], selectedCountries[i], document.getElementById('yearlist').selectedOptions[0].text);
+					fillTableWithData(data[datatype][selectedCountries[i]], selectedCountries[i], document.getElementById('yearlist').selectedOptions[0].text, datatype);
 				}
 			}
 		}
@@ -389,14 +394,17 @@ function clearTable() {
 	 table.draw();
 }
 
-function fillTableWithData(data, country, year) {
+function fillTableWithData(data, country, year, datatype) {
 	var table = $('#DataTable').DataTable();
 	var e = document.getElementById("year");
 	if(data[year]) {
 		if(data[year] % 1 == 0) {
-			table.row.add([country, year, data[year]]);
+			var d = new Data();
+			world = d[datatype]["World"][year];
+			console.log(world);
+			table.row.add([country, year, data[year], (parseInt(data[year]) * 100 / parseInt(world)).toFixed(4) + "%"]);
 		} else {
-			table.row.add([country, year, data[year].toFixed(2)]);
+			table.row.add([country, year, data[year].toFixed(2), ""]);
 		}
 		
 	}
@@ -409,7 +417,7 @@ function buildTable() {
     var thead = document.createElement("thead");
     var tbody = document.createElement("tbody");
     var headRow = document.createElement("tr");
-    ["Country","Year","Average Temperature Data"].forEach(function(el) {
+    ["Country","Year","Average Temperature Data", ""].forEach(function(el) {
       var th=document.createElement("th");
       th.appendChild(document.createTextNode(el));
       headRow.appendChild(th);
