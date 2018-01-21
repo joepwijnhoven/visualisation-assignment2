@@ -471,11 +471,19 @@ this.createTable = function() {
                 .reduce( function (a, b) {
                     return intVal(a) + intVal(b);
                 }, 0 );
- 
-            // Update footer
-            $( api.column( 2 ).footer() ).html(
-                ' ('+ (total).formatMoney(2) +' total)'
-			);}
+			
+			if(document.getElementById('datalist').selectedOptions[0].text == "Average Temperature Data") {
+				// Update footer
+				$( api.column( 2 ).footer() ).html(
+					' ('+ (total/end).toFixed(2) +' average)'
+				);
+			} else {
+				// Update footer
+				$( api.column( 2 ).footer() ).html(
+					' ('+ (total).formatMoney(2) +' total)'
+				);}
+			}
+
 		});
 	})
 }
